@@ -268,15 +268,15 @@
 
 .rm-window-wrap {
   position: relative;
-  width: min(76vw, 380px);
-  aspect-ratio: 100 / 150;
+  width: min(84vw, 440px);
+  aspect-ratio: 100 / 110;
   margin-inline: auto;
 }
 .rm-window {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #e9b979;
+  background: #0b0d14;
   mask-size: 100% 100%;
   -webkit-mask-size: 100% 100%;
   mask-repeat: no-repeat;
@@ -285,9 +285,9 @@
 .rm-window-line {
   position: absolute;
   left: -5%;
-  top: -4.667%;
+  top: -6.364%;
   width: 110%;
-  height: 108%;
+  height: 110.909%;
   overflow: visible;
   pointer-events: none;
   filter: drop-shadow(0 26px 34px rgba(18, 51, 41, 0.28));

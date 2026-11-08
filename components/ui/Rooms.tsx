@@ -13,7 +13,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CalendarPlus, ChevronDown, Navigation } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { archMask, archPath } from "@/lib/arch";
+import { archMask, archPath, boxedArch } from "@/lib/arch";
 import { downloadIcs, googleCalendarUrl } from "@/lib/calendar";
 import { COUPLE, EVENT, MAPS_EMBED, MAPS_LINK } from "@/lib/config";
 import MandapamScene, { JasmineStrand, Kalasha, MarigoldStrand } from "./MandapamScene";
@@ -268,6 +268,9 @@ function PalaceSketch() {
   );
 }
 
+/** Height of the venue arch for a width of 100 (head 50, jambs the rest). */
+const VENUE_ARCH = 110;
+
 function VenueRoom() {
   const [photo, setPhoto] = useState(false);
   useEffect(() => {
@@ -275,7 +278,8 @@ function VenueRoom() {
       .then((r) => r.ok && (r.headers.get("content-type") ?? "").startsWith("image") && setPhoto(true))
       .catch(() => {});
   }, []);
-  const mask = archMask(150);
+  // The photo is landscape, so this arch is broad: the same cusped head on short jambs.
+  const mask = archMask(VENUE_ARCH);
   return (
     <section id="venue" className="rm rm-ivory" aria-label="Venue">
       <div className="rm-in rm-in--wide grid items-center gap-12 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] md:gap-16">
@@ -283,14 +287,14 @@ function VenueRoom() {
           <div className="rm-window" style={{ maskImage: mask, WebkitMaskImage: mask }}>
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src="/images/venue.jpg" alt={`${EVENT.venue.name}, ${EVENT.venue.address}`} className="h-full w-full object-cover" />
+              <img src="/images/venue.jpg" alt={`${EVENT.venue.name}, ${EVENT.venue.address}`} className="h-full w-full object-cover object-[52%_50%]" />
             ) : (
               <PalaceSketch />
             )}
           </div>
-          <svg viewBox="-5 -7 110 162" className="rm-window-line" aria-hidden>
-            <path d={archPath({ x0: -3.5, x1: 103.5, top: -4.5, spring: 50, bottom: 153.5 })} fill="none" stroke="#c99a3a" strokeWidth=".4" />
-            <path d={archPath({ bottom: 150 })} fill="none" stroke="#a8791f" strokeWidth=".9" />
+          <svg viewBox={`-5 -7 110 ${VENUE_ARCH + 12}`} className="rm-window-line" aria-hidden>
+            <path d={archPath({ x0: 1.5, x1: 98.5, top: 1.5, spring: 50, bottom: VENUE_ARCH + 3.5 })} fill="none" stroke="#c99a3a" strokeWidth=".4" />
+            <path d={boxedArch(VENUE_ARCH)} fill="none" stroke="#a8791f" strokeWidth=".9" />
           </svg>
         </Reveal>
 

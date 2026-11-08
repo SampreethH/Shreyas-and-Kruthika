@@ -35,8 +35,15 @@ export function archPath({
   return `${d} L${r2(x1)} ${r2(bottom)} Z`;
 }
 
+/**
+ * The arch inset within a 100-wide box so the outward-bulging scallops stay
+ * inside it. Use this for anything that has to fill a box edge to edge
+ * (a mask), and draw its outline with the same geometry.
+ */
+export const boxedArch = (bottom: number) => archPath({ x0: 5, x1: 95, top: 6, spring: 50, bottom });
+
 /** The arch as a CSS mask, stretched to whatever box it is applied to. */
 export function archMask(bottom = 140) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 ${bottom}' preserveAspectRatio='none'><path d='${archPath({ bottom })}'/></svg>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 ${bottom}' preserveAspectRatio='none'><path d='${boxedArch(bottom)}'/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
