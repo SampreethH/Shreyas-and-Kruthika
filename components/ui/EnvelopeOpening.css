@@ -1,0 +1,259 @@
+/* =========================================================================
+   THE ENVELOPE — see EnvelopeOpening.tsx for the sequence.
+   Each flap is a full-screen layer clipped to its triangle, so the paper's
+   light falls continuously across all four. A flap's underside is the
+   same layer turned over, so its clip is the mirror of the front's.
+   ========================================================================= */
+
+.ev {
+  --ev-paper: #6a1820;
+  --clip-l: polygon(0 0, 50.6% 46.6%, 52.4% 48.6%, 53% 50%, 52.4% 51.4%, 50.6% 53.4%, 0 100%);
+  --clip-r: polygon(100% 0, 49.4% 46.6%, 47.6% 48.6%, 47% 50%, 47.6% 51.4%, 49.4% 53.4%, 100% 100%);
+  --clip-t: polygon(0 0, 100% 0, 51.8% 51.6%, 50% 53.2%, 48.2% 51.6%);
+  --clip-b: polygon(0 100%, 100% 100%, 51.8% 48.4%, 50% 46.8%, 48.2% 48.4%);
+  --px: 0;
+  --py: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  background: #2a060a;
+  perspective: 1700px;
+  perspective-origin: 50% 50%;
+  transition: opacity 0.9s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ev.p4 {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ev-inside {
+  position: absolute;
+  inset: 0;
+}
+
+.ev-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* ---------------------------------------------------------------- flaps */
+
+.ev-flap {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.ev-flap--t { transform-origin: 50% 0; transform: translateZ(0); transition: transform 1.45s cubic-bezier(0.55, 0, 0.2, 1); }
+.ev-flap--b { transform-origin: 50% 100%; transform: translateZ(0.5px); transition: transform 1.45s cubic-bezier(0.55, 0, 0.2, 1); }
+.ev-flap--l { transform-origin: 0 50%; transform: translateZ(1px); transition: transform 1.5s cubic-bezier(0.55, 0, 0.2, 1); }
+.ev-flap--r { transform-origin: 100% 50%; transform: translateZ(1.5px); transition: transform 1.5s cubic-bezier(0.55, 0, 0.2, 1); }
+
+.ev.p2 .ev-flap--l { transform: translateZ(1px) rotateY(-176deg); }
+.ev.p2 .ev-flap--r { transform: translateZ(1.5px) rotateY(176deg); }
+.ev.p3 .ev-flap--t { transform: rotateX(176deg); }
+.ev.p3 .ev-flap--b { transform: translateZ(0.5px) rotateX(-176deg); }
+
+.ev-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.ev-flap--l .ev-face--back,
+.ev-flap--r .ev-face--back { transform: rotateY(180deg); }
+.ev-flap--t .ev-face--back,
+.ev-flap--b .ev-face--back { transform: rotateX(180deg); }
+
+/* The paper: deep maroon, felted, lit from the upper left. */
+.ev-paper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 0  0 0 0 0 .02  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    radial-gradient(120% 90% at 30% 18%, #8a2731 0%, #6a1820 42%, #52111a 72%, #3a0a11 100%);
+}
+.ev-flap--l .ev-paper { clip-path: var(--clip-l); }
+.ev-flap--r .ev-paper { clip-path: var(--clip-r); }
+.ev-flap--t .ev-paper { clip-path: var(--clip-t); }
+.ev-flap--b .ev-paper { clip-path: var(--clip-b); }
+
+/* side flaps sit on top, so they catch a touch more light */
+.ev-flap--l .ev-paper,
+.ev-flap--r .ev-paper {
+  filter: brightness(1.07);
+}
+
+/* the light on the paper drifts with the pointer */
+.ev-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(55% 45% at calc(42% + var(--px) * 18%) calc(30% + var(--py) * 14%), rgba(255, 170, 160, 0.13), transparent 70%);
+}
+
+/* A flap's shadow falls on the paper beneath it: the same triangle, dark
+   and blurred, offset away from the light. */
+.ev-cast {
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  filter: blur(9px);
+  transform: translate(5px, 8px);
+}
+.ev-cast-in {
+  position: absolute;
+  inset: 0;
+  background: #12020a;
+}
+.ev-flap--l .ev-cast-in { clip-path: var(--clip-l); }
+.ev-flap--r .ev-cast-in { clip-path: var(--clip-r); }
+.ev-flap--t .ev-cast-in { clip-path: var(--clip-t); }
+.ev-flap--b .ev-cast-in { clip-path: var(--clip-b); }
+.ev-flap--t .ev-cast,
+.ev-flap--b .ev-cast { opacity: 0.35; }
+
+/* the cream underside, seen as a flap turns over */
+.ev-liner {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .3  0 0 0 0 .15  0 0 0 .1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    linear-gradient(160deg, #fbf3e4 0%, #efe1c6 60%, #ddc7a2 100%);
+}
+.ev-flap--l .ev-liner { clip-path: var(--clip-r); }
+.ev-flap--r .ev-liner { clip-path: var(--clip-l); }
+.ev-flap--t .ev-liner { clip-path: var(--clip-b); }
+.ev-flap--b .ev-liner { clip-path: var(--clip-t); }
+
+/* ------------------------------------------------------------- emboss */
+
+.ev-emboss {
+  position: absolute;
+  height: min(96svh, 190vw);
+  width: auto;
+  aspect-ratio: 1 / 2;
+  overflow: visible;
+}
+.ev-flap--l .ev-emboss--a {
+  left: max(-6vw, -40px);
+  top: 50%;
+  transform: translateY(-50%) rotate(-4deg);
+}
+.ev-flap--r .ev-emboss--a {
+  right: max(-6vw, -40px);
+  top: 50%;
+  transform: translateY(-50%) scaleX(-1) rotate(-4deg);
+}
+.ev-flap--t .ev-emboss,
+.ev-flap--b .ev-emboss {
+  height: min(52svh, 110vw);
+}
+.ev-flap--t .ev-emboss--a { left: 24%; top: -4svh; transform: translateX(-50%) rotate(180deg) scaleX(-1); }
+.ev-flap--t .ev-emboss--b { left: 76%; top: -4svh; transform: translateX(-50%) rotate(180deg); }
+.ev-flap--b .ev-emboss--a { left: 24%; bottom: -4svh; transform: translateX(-50%); }
+.ev-flap--b .ev-emboss--b { left: 76%; bottom: -4svh; transform: translateX(-50%) scaleX(-1); }
+
+/* --------------------------------------------------------------- seal */
+
+.ev-seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 30;
+  width: clamp(124px, 33vw, 178px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 14px 18px rgba(20, 2, 6, 0.6)) drop-shadow(0 2px 3px rgba(20, 2, 6, 0.5));
+  transition:
+    transform 0.6s cubic-bezier(0.22, 0.8, 0.26, 1),
+    opacity 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ev-seal::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 200, 170, 0.26) 0%, rgba(255, 200, 170, 0) 66%);
+  animation: ev-breathe 3.4s ease-in-out infinite;
+}
+.ev-seal-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ev-seal:hover { transform: translate(-50%, -50%) scale(1.035); }
+.ev-seal:active { transform: translate(-50%, -50%) scale(0.96); }
+.ev-seal:focus-visible { outline: 1.5px solid #f1dcc4; outline-offset: 10px; border-radius: 50%; }
+.ev-seal:disabled { cursor: default; }
+.ev.p1 .ev-seal {
+  opacity: 0;
+  transform: translate(-50%, -58%) scale(1.3);
+}
+@keyframes ev-breathe {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+.ev-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(clamp(34px, 9svh, 76px) + env(safe-area-inset-bottom));
+  z-index: 30;
+  margin-right: -0.42em;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f1dcc4;
+  text-shadow: 0 1px 8px rgba(40, 6, 12, 0.7);
+  pointer-events: none;
+  animation: ev-fade 2.6s ease-in-out infinite;
+  transition: opacity 0.4s;
+}
+.ev.p1 .ev-hint {
+  opacity: 0;
+  animation: none;
+}
+@keyframes ev-fade {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev.p2 .ev-flap--l,
+  .ev.p2 .ev-flap--r,
+  .ev.p3 .ev-flap--t,
+  .ev.p3 .ev-flap--b {
+    transform: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+}
+
+/* On a tall screen the side flaps are narrow; a smaller spray keeps the
+   lotus inside its flap instead of under the neighbouring one. */
+@media (orientation: portrait) {
+  .ev-flap--l .ev-emboss--a,
+  .ev-flap--r .ev-emboss--a {
+    height: 62svh;
+    top: 54%;
+  }
+  .ev-flap--l .ev-emboss--a { left: -8vw; }
+  .ev-flap--r .ev-emboss--a { right: -8vw; }
+}

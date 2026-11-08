@@ -2,11 +2,11 @@
 
 import { Volume2, VolumeX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import OpeningCard from "@/components/ui/OpeningCard";
+import EnvelopeOpening from "@/components/ui/EnvelopeOpening";
 import Rooms from "@/components/ui/Rooms";
 
 /**
- * card    the sealed silk gatefold fills the screen
+ * card    the sealed envelope fills the screen
  * reveal  it has opened onto the mandapam; the page (whose first room is
  *         the same mandapam) is mounted beneath it and takes over
  * open    only the page remains
@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <main className="relative">
       {stage !== "card" && <Rooms />}
-      {stage !== "open" && <OpeningCard onOpen={startMusic} onReveal={() => setStage("reveal")} onDone={() => setStage("open")} />}
+      {stage !== "open" && <EnvelopeOpening onOpen={startMusic} onReveal={() => setStage("reveal")} onDone={() => setStage("open")} />}
 
       {hasTrack && stage !== "card" && (
         <button
