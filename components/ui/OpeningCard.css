@@ -1,0 +1,334 @@
+/* =========================================================================
+   THE OPENING CARD: a silk gatefold sealed with a gold-foil medallion.
+   See OpeningCard.tsx for the sequence (s1 press, s2 open, s3 read, s4 go).
+   ========================================================================= */
+
+.oc {
+  --m: clamp(138px, 37vw, 190px);          /* medallion */
+  --e-out: cubic-bezier(0.22, 0.8, 0.26, 1);
+  --e-door: cubic-bezier(0.62, 0.02, 0.2, 1);
+  --silk-hi: #b5392b;
+  --silk: #962419;
+  --silk-lo: #741812;
+  --silk-deep: #4f0e0b;
+  --zari: #f2dc9c;
+  --px: 0;
+  --py: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  background: var(--silk-deep);
+  perspective: 1900px;
+  perspective-origin: 50% 46%;
+  transition: opacity 1.1s ease 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.oc.s4 {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The whole object tilts a little towards the light under the pointer. */
+.oc-stage {
+  position: absolute;
+  inset: -2.5%;
+  transform-style: preserve-3d;
+  transform: rotateY(calc(var(--px) * 1.4deg)) rotateX(calc(var(--py) * -1.1deg));
+}
+
+/* ---------------------------------------------------------------- inside */
+
+/* The mandapam sits outside the tilting stage, at exactly the viewport, so
+   it matches the page's own copy pixel for pixel when the card hands over. */
+.oc-inside {
+  position: absolute;
+  inset: 0;
+}
+
+/* The closed panels throw shadow onto the scene at their hinges. */
+.oc-hinge-shadow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 22%;
+  pointer-events: none;
+  transition: opacity 1.5s ease 0.35s;
+}
+.oc-hinge-shadow.l { left: 0; background: linear-gradient(90deg, rgba(10, 2, 0, 0.5), rgba(10, 2, 0, 0)); }
+.oc-hinge-shadow.r { right: 0; background: linear-gradient(270deg, rgba(10, 2, 0, 0.5), rgba(10, 2, 0, 0)); }
+.oc.s3-on .oc-hinge-shadow { opacity: 0; }
+
+/* ---------------------------------------------------------------- panels */
+
+.oc-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  transform-style: preserve-3d;
+  transition: transform 1.85s var(--e-door);
+}
+.oc-door--l { left: 0; transform-origin: 0 50%; }
+.oc-door--r { right: 0; transform-origin: 100% 50%; }
+.oc.s2-on .oc-door--l { transform: rotateY(-162deg); }
+.oc.s2-on .oc-door--r { transform: rotateY(162deg); }
+
+.oc-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Silk: one light falling across both panels (each shows its half of a
+   double-width gradient), a fine warp-and-weft, grain, and a sheen band
+   that moves with the pointer. */
+.oc-face--front {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    repeating-linear-gradient(90deg, rgba(255, 220, 190, 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(30, 0, 0, 0.06) 0 1px, transparent 1px 2px),
+    radial-gradient(120% 80% at 38% 22%, var(--silk-hi) 0%, var(--silk) 36%, var(--silk-lo) 70%, var(--silk-deep) 100%);
+  background-size: auto, auto, auto, 200% 100%;
+}
+.oc-door--l .oc-face--front { background-position: 0 0, 0 0, 0 0, 0% 0; }
+.oc-door--r .oc-face--front { background-position: 0 0, 0 0, 0 0, 100% 0; }
+
+.oc-face--front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(104deg,
+      transparent 32%,
+      rgba(255, 170, 130, 0.1) 42%,
+      rgba(255, 214, 180, 0.2) 49%,
+      rgba(255, 170, 130, 0.08) 57%,
+      transparent 68%);
+  background-size: 200% 100%;
+}
+.oc-door--l .oc-face--front::before { background-position: calc(var(--px) * 90px) 0; }
+.oc-door--r .oc-face--front::before { background-position: calc(100% + var(--px) * 90px) 0; }
+
+.oc-buttas {
+  position: absolute;
+  inset: 0;
+  opacity: 0.62;
+}
+
+.oc-zari-top,
+.oc-zari-bottom,
+.oc-zari-fold {
+  position: absolute;
+  z-index: 2;
+  filter: drop-shadow(0 1px 1px rgba(40, 4, 2, 0.45));
+}
+.oc-zari-top { top: 0; left: 0; transform: scaleY(-1); }
+.oc-zari-bottom { bottom: 0; left: 0; }
+.oc-zari-fold { top: 24px; bottom: 24px; z-index: 3; height: calc(100% - 48px); }
+.oc-door--l .oc-zari-fold { right: 0; }
+.oc-door--r .oc-zari-fold { left: 0; transform: scaleX(-1); }
+
+/* where the two panels meet: a hairline of shadow and a lit lip */
+.oc-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  z-index: 4;
+  pointer-events: none;
+}
+.oc-door--l .oc-edge {
+  right: 0;
+  background: linear-gradient(270deg, rgba(30, 2, 0, 0.55) 0, rgba(30, 2, 0, 0.18) 2px, rgba(255, 230, 190, 0.22) 3px, transparent 7px);
+}
+.oc-door--r .oc-edge {
+  left: 0;
+  background: linear-gradient(90deg, rgba(30, 2, 0, 0.4) 0, rgba(255, 230, 190, 0.16) 2px, transparent 6px);
+}
+
+/* Each panel carries the whole medallion, clipped at the fold, so it
+   reads as one seal until the panels part. */
+.oc-medal {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  width: var(--m);
+  aspect-ratio: 1;
+  margin-top: calc(var(--m) / -2);
+  filter: drop-shadow(0 12px 14px rgba(40, 4, 2, 0.5)) drop-shadow(0 2px 2px rgba(40, 4, 2, 0.45));
+  transition: transform 0.5s var(--e-out);
+}
+.oc-door--l .oc-medal { right: calc(var(--m) / -2); }
+.oc-door--r .oc-medal { left: calc(var(--m) / -2); }
+.oc-medal-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.oc:has(.oc-hit:hover) .oc-medal { transform: scale(1.035); }
+.oc:has(.oc-hit:active) .oc-medal,
+.oc.s1 .oc-medal { transform: scale(0.95); transition-duration: 0.18s; }
+
+.oc-glint {
+  animation: oc-glint 6s ease-in-out 1.6s infinite;
+}
+@keyframes oc-glint {
+  0% { transform: translateX(0); }
+  32%, 100% { transform: translateX(330px); }
+}
+
+/* As a panel turns away from the light it darkens. */
+.oc-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s var(--e-door);
+}
+.oc-door--l .oc-shade { background: linear-gradient(90deg, rgba(20, 2, 0, 0.25), rgba(20, 2, 0, 0.75)); }
+.oc-door--r .oc-shade { background: linear-gradient(270deg, rgba(20, 2, 0, 0.25), rgba(20, 2, 0, 0.75)); }
+.oc.s2-on .oc-shade { opacity: 1; }
+
+/* the inside of each panel: a lining of plain ivory with a gold rule */
+.oc-face--back {
+  transform: rotateY(180deg);
+  background: linear-gradient(90deg, #e9d9bb, #f6ecda 60%, #efe0c4);
+  box-shadow: inset 0 0 0 14px #f4e8d2, inset 0 0 0 15px rgba(168, 121, 31, 0.5);
+}
+
+/* --------------------------------------------------------- seal & hints */
+
+.oc-hit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 10;
+  width: var(--m);
+  aspect-ratio: 1;
+  margin: calc(var(--m) / -2) 0 0 calc(var(--m) / -2);
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.oc-hit:disabled { cursor: default; }
+.oc-hit:focus-visible { outline: 1.5px solid var(--zari); outline-offset: 14px; }
+.oc-halo {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 220, 156, 0.5);
+  box-shadow: 0 0 24px rgba(242, 220, 156, 0.18);
+  animation: oc-breathe 3.2s ease-in-out infinite;
+  transition: opacity 0.3s;
+}
+.oc.s1 .oc-halo,
+.oc.s2-on .oc-halo { opacity: 0; animation: none; }
+@keyframes oc-breathe {
+  0%, 100% { transform: scale(0.97); opacity: 0.35; }
+  50% { transform: scale(1.05); opacity: 0.95; }
+}
+
+.oc-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 9;
+  width: var(--m);
+  aspect-ratio: 1;
+  margin: calc(var(--m) / -2) 0 0 calc(var(--m) / -2);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  border: 2px solid rgba(255, 236, 190, 0.9);
+  box-shadow: 0 0 40px 8px rgba(242, 220, 156, 0.55), inset 0 0 30px rgba(242, 220, 156, 0.5);
+}
+.oc.s2-on .oc-burst { animation: oc-burst 1.15s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+@keyframes oc-burst {
+  0% { transform: scale(0.7); opacity: 0.95; }
+  100% { transform: scale(3.4); opacity: 0; }
+}
+
+.oc-dust {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 9;
+  pointer-events: none;
+}
+.oc-dust i {
+  position: absolute;
+  width: var(--ds);
+  height: var(--ds);
+  margin: calc(var(--ds) / -2);
+  border-radius: 50%;
+  background: #fff1c6;
+  box-shadow: 0 0 6px 1px rgba(242, 220, 156, 0.8);
+  opacity: 0;
+}
+.oc.s2-on .oc-dust i { animation: oc-dust 1.3s cubic-bezier(0.15, 0.7, 0.3, 1) var(--dd) forwards; }
+@keyframes oc-dust {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), calc(var(--dy) + 30px)) scale(0.3); opacity: 0; }
+}
+
+.oc-hint {
+  position: absolute;
+  left: 50%;
+  z-index: 8;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 10px rgba(40, 4, 2, 0.6);
+  transition: opacity 0.4s ease;
+}
+.oc-hint {
+  bottom: calc(66px + env(safe-area-inset-bottom));
+  padding: 10px calc(18px - 0.4em) 10px 18px;
+  border: 1px solid rgba(242, 220, 156, 0.5);
+  border-radius: 999px;
+  background: rgba(79, 14, 11, 0.86);
+  box-shadow: 0 8px 20px -8px rgba(30, 2, 0, 0.7), inset 0 0 0 3px rgba(79, 14, 11, 0.86), inset 0 0 0 4px rgba(242, 220, 156, 0.2);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--zari);
+  animation: oc-fade 2.8s ease-in-out infinite;
+}
+@keyframes oc-fade {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.oc.s1 .oc-hint,
+.oc.s2-on .oc-hint {
+  opacity: 0;
+  animation: none;
+}
+
+/* On a wide screen the panels are wide and shallow; give the seal more room. */
+@media (min-width: 900px) {
+  .oc { --m: clamp(170px, 15vw, 220px); }
+}
+
+/* Reduced motion: the panels fade rather than swing. */
+@media (prefers-reduced-motion: reduce) {
+  .oc-stage { transform: none; }
+  .oc.s2-on .oc-door--l,
+  .oc.s2-on .oc-door--r { transform: none; opacity: 0; transition: opacity 0.6s ease; }
+  .oc-burst,
+  .oc-dust { display: none; }
+}
+

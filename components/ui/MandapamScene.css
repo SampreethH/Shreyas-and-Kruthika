@@ -1,0 +1,375 @@
+/* =========================================================================
+   THE MANDAPAM — see MandapamScene.tsx.
+   Everything is sized from --aw (arch width) so the scene keeps its
+   proportions from a phone to a wide monitor.
+   ========================================================================= */
+
+.mdp {
+  --aw: min(86vw, 40svh);
+  --ah: calc(var(--aw) * 1.75);
+  --floor: 15svh;
+  --gap: 3vw;
+  --ph: calc(100svh - var(--floor) + 2svh);
+  --pw: calc(var(--ph) * 0.12);
+  --ease: cubic-bezier(0.22, 0.8, 0.26, 1);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #123329;
+  isolation: isolate;
+}
+@media (orientation: landscape) {
+  .mdp {
+    --aw: min(60vw, 52svh);
+    --ah: calc(var(--aw) * 1.4);
+    --gap: 4vw;
+  }
+}
+
+/* painted wall: bottle green with a gold stencil, lit from the shrine */
+.mdp-wall {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'><g fill='none' stroke='%23e9cd86' stroke-width='.8' opacity='.17'><path d='M28 11 Q35 20 28 28 Q21 20 28 11Z M28 45 Q35 36 28 28 Q21 36 28 45Z M11 28 Q20 21 28 28 Q20 35 11 28Z M45 28 Q36 21 28 28 Q36 35 45 28Z'/><circle cx='0' cy='0' r='3.5'/><circle cx='56' cy='0' r='3.5'/><circle cx='0' cy='56' r='3.5'/><circle cx='56' cy='56' r='3.5'/></g></svg>"),
+    radial-gradient(120% 90% at 50% 42%, #265e4b 0%, #18402f 48%, #0c241d 100%);
+}
+.mdp-lintel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  z-index: 6;
+  background: linear-gradient(180deg, #2c1e0c, #6b4a1c);
+  border-bottom: 2px solid #e9cd86;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* -------------------------------------------------------------- the arch */
+
+.mdp-arch {
+  position: absolute;
+  left: 50%;
+  bottom: var(--floor);
+  z-index: 3;
+  width: var(--aw);
+  height: var(--ah);
+  transform: translateX(-50%);
+}
+.mdp-halo {
+  position: absolute;
+  inset: -35% -70% -10%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 214, 140, 0.42), rgba(255, 214, 140, 0.12) 55%, transparent);
+  opacity: 0.35;
+  transition: opacity 2s ease 0.4s;
+}
+.mdp--on .mdp-halo {
+  opacity: 1;
+}
+.mdp-frame {
+  position: absolute;
+  left: -14%;
+  width: 128%;
+  top: calc(var(--aw) * -0.3);
+  height: calc(var(--ah) + var(--aw) * 0.3);
+  overflow: visible;
+  filter: brightness(0.62) saturate(0.85) drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45));
+  transition: filter 1.8s ease 0.3s;
+}
+.mdp--on .mdp-frame {
+  filter: brightness(1) saturate(1) drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45));
+}
+.mdp-frame.wide { display: none; }
+@media (orientation: landscape) {
+  .mdp-frame.tall { display: none; }
+  .mdp-frame.wide { display: block; }
+}
+
+/* the names, read in the lamplight */
+.mdp-text {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: calc(var(--aw) * 0.18);
+  bottom: 4%;
+  --name: 0.175;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+@media (orientation: landscape) {
+  /* clear of the jasmine swag in the shallower landscape arch */
+  .mdp-text { top: calc(var(--aw) * 0.36); --name: 0.15; }
+}
+.mdp-l {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(4px);
+  transition:
+    opacity 0.9s ease,
+    transform 1.2s var(--ease),
+    filter 0.9s ease;
+  transition-delay: calc(var(--i) * 130ms + 350ms);
+}
+.mdp--on .mdp-l {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+.mdp-bless {
+  font-family: var(--font-serif);
+  font-size: calc(var(--aw) * 0.046);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #7a1a14;
+}
+.mdp-deity {
+  margin-top: 0.3em;
+  font-family: var(--font-serif);
+  font-size: calc(var(--aw) * 0.039);
+  font-style: italic;
+  color: rgba(58, 36, 20, 0.72);
+}
+.mdp-kicker {
+  margin-top: calc(var(--aw) * 0.075);
+  margin-right: -0.36em;
+  font-family: var(--font-sans);
+  font-size: max(9px, calc(var(--aw) * 0.028));
+  font-weight: 600;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: #1f5a44;
+}
+.mdp-names {
+  margin-top: calc(var(--aw) * 0.035);
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: calc(var(--aw) * var(--name));
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+  color: #5a120e;
+}
+.mdp-names span {
+  display: block;
+}
+.mdp-names i {
+  display: block;
+  margin: 0.06em 0 0.02em;
+  font-family: var(--font-script);
+  font-style: normal;
+  font-size: 0.74em;
+  line-height: 0.9;
+  color: #a8791f;
+}
+.mdp-when {
+  margin-top: calc(var(--aw) * 0.065);
+  margin-right: -0.3em;
+  font-family: var(--font-sans);
+  font-size: max(9px, calc(var(--aw) * 0.028));
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #6b4a26;
+}
+
+/* gold motes rising through the lamplight */
+.mdp-motes {
+  position: absolute;
+  inset: 12% 10% 6%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mdp-motes i {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  background: #ffe6a6;
+  box-shadow: 0 0 6px 1px rgba(255, 210, 120, 0.8);
+  opacity: 0;
+  animation: mdp-mote linear infinite;
+}
+.mdp:not(.mdp--on) .mdp-motes { display: none; }
+@keyframes mdp-mote {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 0.85; }
+  100% { transform: translate(14px, calc(var(--ah) * -0.8)); opacity: 0; }
+}
+
+/* ----------------------------------------------------------- the floor */
+
+.mdp-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--floor);
+  z-index: 2;
+  perspective: 500px;
+  border-top: 1px solid rgba(233, 205, 134, 0.55);
+  background:
+    radial-gradient(40% 130% at 50% 0%, rgba(255, 214, 140, 0.34), transparent 70%),
+    linear-gradient(180deg, #1c4234, #0a1d17);
+}
+.mdp-rangoli {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(92vw, calc(var(--aw) * 1.15));
+  transform: translate(-50%, -50%) rotateX(74deg);
+}
+.mdp-rangoli svg {
+  display: block;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------- diyas */
+
+.mdp-diya-slot {
+  position: absolute;
+  left: calc(50% + var(--dx) * var(--aw));
+  z-index: 4;
+}
+.mdp-diya-slot.back {
+  bottom: calc(var(--floor) - var(--aw) * 0.035);
+  width: calc(var(--aw) * 0.12);
+  margin-left: calc(var(--aw) * -0.06);
+}
+.mdp-diya-slot.front {
+  bottom: calc(var(--floor) * 0.18);
+  z-index: 6;
+  width: calc(var(--aw) * 0.17);
+  margin-left: calc(var(--aw) * -0.085);
+}
+.mdp-diya svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.mdp-diya-light {
+  opacity: 0;
+  transform: scale(0.2);
+  transform-box: view-box;
+  transform-origin: 30px 30px;
+  transition:
+    opacity 0.5s ease,
+    transform 0.7s var(--ease);
+  transition-delay: calc(var(--fd) + 800ms);
+}
+.mdp--on .mdp-diya-light {
+  opacity: 1;
+  transform: none;
+}
+.mdp-diya-flame,
+.mdp-lamp-flame {
+  transform-box: view-box;
+  transform-origin: 30px 29px;
+  animation: mdp-flicker 1.9s ease-in-out infinite;
+  animation-delay: var(--fd, 0ms);
+}
+.mdp-lamp-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.mdp-diya-glow {
+  animation: mdp-glow 2.6s ease-in-out infinite;
+}
+@keyframes mdp-flicker {
+  0%, 100% { transform: scale(1, 1) rotate(0); }
+  22% { transform: scale(0.93, 1.07) rotate(-2.5deg); }
+  46% { transform: scale(1.04, 0.95) rotate(1.5deg); }
+  71% { transform: scale(0.97, 1.05) rotate(-1deg); }
+}
+@keyframes mdp-glow {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+/* ------------------------------------------------- pillars and strands */
+
+.mdp-pillar {
+  position: absolute;
+  bottom: calc(var(--floor) - 2svh);
+  z-index: 5;
+  height: var(--ph);
+  width: var(--pw);
+  filter: drop-shadow(0 0 22px rgba(0, 0, 0, 0.45));
+}
+.mdp-pillar.l { left: calc(50% - var(--aw) / 2 - var(--gap) - var(--pw)); }
+.mdp-pillar.r { left: calc(50% + var(--aw) / 2 + var(--gap)); }
+
+.mdp-strand {
+  position: absolute;
+  top: 10px;
+  z-index: 4;
+  height: auto;
+  transform-origin: 50% 0;
+  animation: mdp-sway 5.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.35));
+}
+.mdp-strand.j {
+  width: 14px;
+  margin-left: -7px;
+}
+.mdp-strand.j.l { left: calc(50% - var(--aw) / 2 - var(--gap) / 2); }
+.mdp-strand.j.r { left: calc(50% + var(--aw) / 2 + var(--gap) / 2); animation-delay: -2s; }
+.mdp-strand.m {
+  width: 20px;
+  margin-left: -10px;
+  z-index: 6;
+}
+.mdp-strand.m.l { left: calc(50% - var(--aw) / 2 - var(--gap) - var(--pw) - 22px); animation-delay: -1s; }
+.mdp-strand.m.r { left: calc(50% + var(--aw) / 2 + var(--gap) + var(--pw) + 22px); animation-delay: -3s; }
+@media (min-width: 900px) {
+  .mdp-strand.j { width: 22px; margin-left: -11px; }
+}
+@keyframes mdp-sway {
+  from { transform: rotate(-1.4deg); }
+  to { transform: rotate(1.4deg); }
+}
+
+.mdp-side {
+  display: none;
+}
+@media (orientation: landscape) and (min-width: 900px) {
+  .mdp-side {
+    --strip: calc(50vw - var(--aw) / 2 - var(--gap) - var(--pw));
+    display: block;
+    position: absolute;
+    bottom: var(--floor);
+    z-index: 1;
+    width: min(calc(var(--aw) * 0.62), calc(var(--strip) * 0.72));
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.35));
+  }
+  .mdp-side.l { left: calc(var(--strip) / 2); transform: translateX(-50%); }
+  .mdp-side.r { right: calc(var(--strip) / 2); transform: translateX(50%); }
+}
+
+.mdp-torana {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 7;
+  width: min(104vw, 125svh);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
+}
+
+.mdp-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 46%, transparent 55%, rgba(4, 14, 11, 0.55) 100%);
+}
+
+/* the page's copy of the scene arrives already lit */
+.mdp--still *,
+.mdp--still *::before,
+.mdp--still *::after {
+  transition: none !important;
+}

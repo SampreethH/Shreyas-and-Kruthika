@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light luxury: ivory and sandalwood grounds, antique gold, kumkuma accents */
+  --color-ivory: #fcf8f1;
+  --color-sandal: #f4ead9;
+  --color-pearl: #ffffff;
+  --color-ink: #3a2414;
+  --color-gold: #a8791f;
+  --color-gold-light: #e8cf8e;
+  --color-gold-deep: #7a5512;
+  --color-champagne: #f7ecd2;
+  --color-kumkuma: #8e1f1f;
+  --color-saffron: #d0702a;
+
+  --font-display: var(--font-cinzel-decorative), "Cinzel Decorative", serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  --color-bottle: #1f5a44;
+  --color-bottle-deep: #123329;
+  --color-maroon: #5a120e;
+
+  --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-spin-slow: spin 60s linear infinite;
+  --animate-shimmer: shimmer 6s linear infinite;
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+}
+
+:root {
+  color-scheme: light;
+  /* Plain variables (not @theme) so plain CSS files can always use them */
+  --font-script: var(--font-great-vibes), "Great Vibes", cursive;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: var(--font-cinzel-decorative), "Cinzel Decorative", serif;
+}
+
+html {
+  background: var(--color-ivory);
+  scroll-behavior: smooth;
+  /* Clip, not hide: stops decorative overflow from widening the mobile layout viewport. */
+  overflow-x: clip;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(232, 207, 142, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 60%, rgba(244, 234, 217, 0.9), transparent 70%),
+    var(--color-ivory);
+  background-attachment: fixed;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+body.gate-locked {
+  overflow: hidden;
+  touch-action: none;
+}
+
+::selection {
+  background: rgba(168, 121, 31, 0.22);
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.82), rgba(255, 252, 245, 0.6));
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    border: 1px solid rgba(168, 121, 31, 0.2);
+    box-shadow: 0 14px 40px -22px rgba(122, 85, 18, 0.45);
+  }
+
+  /* Animated gold gradient border via padding + mask */
+  .gold-border {
+    position: relative;
+  }
+  .gold-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: linear-gradient(120deg, #a8791f, #f3e0a8, #c99a3a, #7a5512, #f3e0a8, #a8791f);
+    background-size: 200% 200%;
+    animation: var(--animate-shimmer);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(100deg, #7a5512 0%, #c99a3a 28%, #8a6116 50%, #d8b25e 68%, #7a5512 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+  @media (min-width: 640px) {
+    .eyebrow {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* Temple arch (torana) silhouette for framed photos */
+  .arch {
+    border-radius: 999px 999px 1.25rem 1.25rem;
+  }
+
+  /* Invitation card: domed top like a temple doorway */
+  .dome {
+    border-radius: 50% 50% 1.75rem 1.75rem / 7rem 7rem 1.75rem 1.75rem;
+  }
+  @media (min-width: 640px) {
+    .dome {
+      border-radius: 50% 50% 1.75rem 1.75rem / 11rem 11rem 1.75rem 1.75rem;
+    }
+  }
+
+  /* Garland strands and bells swing gently from their hook */
+  .torana-sway {
+    transform-box: view-box;
+    animation: torana-sway 4.2s ease-in-out infinite alternate;
+  }
+}
+
+/* Blush petals drifting down behind the invitation */
+.petal {
+  opacity: 0;
+  animation: petal-fall linear infinite;
+}
+@keyframes petal-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  90% { opacity: 0.7; }
+  100% { transform: translate(var(--drift), 110vh) rotate(540deg); opacity: 0; }
+}
+
+@keyframes torana-sway {
+  from { transform: rotate(-1.6deg); }
+  to { transform: rotate(1.6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
